@@ -2,4 +2,6 @@ Flask
 Flask-RESTful
 Flask-SQLAlchemy
 Flask-Marshmallow
+Flask-JWT-Extended
 Marshmallow
+Passlib
