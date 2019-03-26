@@ -34,15 +34,6 @@ pwd_context = CryptContext(
     pbkdf2_sha256__default_rounds=30000
 )
 
-# def authenticate(username, password):
-#     user = UserModel.find_by_username(username)
-#     if user and check_encrypted_password(password, user.password):
-#         return user
-#
-# def identity(payload):
-#     user_id = payload['identity']
-#     return UserModel.find_by_id(user_id)
-
 def encrypt_password(password):
     return pwd_context.encrypt(password)
 
