@@ -1,5 +1,5 @@
-from marshmallow import fields
-from db import db, ma
+from db import db
+
 
 class UserModel(db.Model):
     __tablename__ = "users"
@@ -33,10 +33,3 @@ class UserModel(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
-
-class UserSchema(ma.ModelSchema):
-    id = fields.Int(dump_only=True)
-    username = fields.Str()
-
-    class Meta:
-        ordered=True

@@ -1,11 +1,11 @@
-from flask_restful import Resource, request
-from models.recipe import RecipeModel, RecipeSchema
+from flask_restful import Resource
 from flask_jwt_extended import jwt_required
-from db import db
+from flask import request
+from models.recipe import RecipeModel
 
 
 
-class Recipe(Resource):
+class RecipeResource(Resource):
     @jwt_required
     def get(self, name):
         new_recipe = RecipeModel.find_by_name(name)
@@ -18,18 +18,18 @@ class Recipe(Resource):
         if RecipeModel.find_by_name(name):
             return {"message": "A recipe with that name already exists"}, 400
         data = request.get_json()
-        recipe_schema = RecipeSchema()
         new_recipe = RecipeModel(name=data["name"], ingredients=data["ingredients"], directions=data["directions"])
-        db.session.add(new_recipe)
-        db.session.commit()
-        return recipe_schema.dump(new_recipe).data
+        try:
+            new_recipe.save_to_db()
+        except:
+            return {"message": "An error occurred inserting the item."}
+        return new_recipe.json()
 
     @jwt_required
     def delete(self, name):
         new_recipe = RecipeModel.find_by_name(name)
         if new_recipe:
-            db.session.delete(new_recipe)
-            db.session.commit()
+            new_recipe.delete_from_db()
             return {'message': 'The recipe for {} has been deleted.'.format(name)}
         return {'message': 'Recipe not found'}, 404
 
@@ -37,18 +37,16 @@ class Recipe(Resource):
     def put(self, name):
         new_recipe = RecipeModel.find_by_name(name)
         data = request.get_json()
-        recipe_schema = RecipeSchema()
         if new_recipe:
-            if data['ingredients'] != None:
+            if data['ingredients']:
                 new_recipe.ingredients = data['ingredients']
-            elif data['directions'] != None:
+            elif data['directions']:
                 new_recipe.directions = data['directions']
         else:
             new_recipe = RecipeModel(name=data["name"], ingredients=data["ingredients"], directions=data["directions"])
 
-        db.session.add(new_recipe)
-        db.session.commit()
-        return recipe_schema.dump(new_recipe).data
+        new_recipe.save_to_db()
+        return new_recipe.json()
 
 
 class RecipeList(Resource):
